@@ -45,7 +45,12 @@ class MealLogController extends Controller
 
     public function status(Request $request, int $id): JsonResponse
     {
-        $log = $this->mealLogRepo->findOrFail($id);
+        $log = $this->mealLogRepo->find($id);
+
+        if (! $log) {
+            return response()->json(['error' => 'not_found'], 404);
+        }
+
         $log->load('aiResult');
 
         abort_unless($log->user_id === $request->user()->id, 403);

@@ -27,6 +27,32 @@ Route::middleware('guest')->group(function () {
 // n8n callback — no CSRF, no auth (see bootstrap/app.php withMiddleware exclusion)
 Route::post('/webhook/nutrition-result', [WebhookController::class, 'handle']);
 
+// DEV ONLY — test n8n webhook connectivity (remove before production)
+if (app()->isLocal()) {
+    Route::get('/dev/test-webhook', function () {
+        /** @var \App\Services\WebhookService $svc */
+        $svc = app(\App\Services\WebhookService::class);
+
+        // find any existing meal-photo to attach, or skip image
+        $files = \Illuminate\Support\Facades\Storage::disk('public')->files('meal-photos');
+        $photoPath = count($files) > 0 ? $files[0] : null;
+
+        $svc->sendToN8n([
+            'meal_log_id' => 0,
+            'food_name'   => 'test-ping',
+            'confidence'  => 0.99,
+            'meal_type'   => 'pagi',
+            'date'        => now()->toDateString(),
+            'user_id'     => 0,
+        ], $photoPath);
+
+        return response()->json([
+            'status'     => 'dispatched',
+            'photo_path' => $photoPath ?? 'none — save a real meal log first',
+        ]);
+    });
+}
+
 // Authenticated routes
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

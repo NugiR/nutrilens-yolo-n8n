@@ -314,6 +314,11 @@ async function pollMealLogStatus(mealLogId) {
             headers: { Accept: 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         });
 
+        if (response.status === 404) {
+            sessionStorage.removeItem('pollMealLogId');
+            return;
+        }
+
         if (!response.ok) {
             return;
         }

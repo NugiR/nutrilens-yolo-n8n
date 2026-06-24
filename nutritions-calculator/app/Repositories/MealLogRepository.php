@@ -56,6 +56,11 @@ class MealLogRepository
             : $query->get();
     }
 
+    public function find(int $id): ?MealLog
+    {
+        return MealLog::find($id);
+    }
+
     public function findOrFail(int $id): MealLog
     {
         return MealLog::findOrFail($id);

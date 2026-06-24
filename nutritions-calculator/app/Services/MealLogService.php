@@ -36,14 +36,16 @@ class MealLogService
             'status' => MealLogStatus::Pending,
         ]);
 
-        $this->webhookService->sendToN8n([
-            'meal_log_id' => $log->id,
-            'food_name' => $foodName,
-            'confidence' => $confidence,
-            'meal_type' => $log->meal_type->value,
-            'date' => $date,
-            'user_id' => $user->id,
-        ]);
+        dispatch(function () use ($log, $foodName, $confidence, $date, $photoPath) {
+            $this->webhookService->sendToN8n([
+                'meal_log_id' => $log->id,
+                'food_name' => $foodName,
+                'confidence' => $confidence,
+                'meal_type' => $log->meal_type->value,
+                'date' => $date,
+                'user_id' => $log->user_id,
+            ], $photoPath);
+        })->afterResponse();
 
         return $log;
     }
