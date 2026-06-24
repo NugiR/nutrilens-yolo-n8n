@@ -1,7 +1,16 @@
 venv/
 __pycache__/
 *.py[cod]
-runs/
-*.pt
 .env
 .DS_Store
+
+# Training runs — ignore all except the production model folder
+runs/**
+!runs/detect/
+!runs/detect/indonesia-food-v2/
+!runs/detect/indonesia-food-v2/**
+
+# Weight files — ignore globally, except trained Indonesia food model
+*.pt
+!runs/detect/indonesia-food-v2/weights/
+!runs/detect/indonesia-food-v2/weights/*.pt
