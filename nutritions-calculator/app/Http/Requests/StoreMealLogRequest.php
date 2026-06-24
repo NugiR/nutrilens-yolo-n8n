@@ -18,9 +18,10 @@ class StoreMealLogRequest extends FormRequest
     {
         return [
             'meal_type' => ['required', new Enum(MealType::class)],
-            'food_name' => ['required', 'string', Rule::in(config('yolo.food_classes'))],
-            'confidence' => ['required', 'numeric', 'min:0', 'max:1'],
+            'detected_food_name' => ['required', 'string', Rule::in(config('yolo.food_classes'))],
+            'detection_confidence' => ['required', 'numeric', 'min:0', 'max:1'],
             'date' => ['nullable', 'date'],
+            'photo' => ['nullable', 'file', 'image', 'max:5120'],
         ];
     }
 }

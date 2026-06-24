@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Enums\MealLogStatus;
 use App\Models\MealLog;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 class MealLogService
 {
@@ -18,12 +20,17 @@ class MealLogService
         string $foodName,
         float $confidence,
         string $date,
+        ?UploadedFile $photo = null,
     ): MealLog {
+        $photoPath = $photo
+            ? $photo->store('meal-photos', 'public')
+            : null;
+
         $log = MealLog::create([
             'user_id' => $user->id,
             'meal_type' => $mealType,
             'date' => $date,
-            'photo_path' => '',
+            'photo_path' => $photoPath,
             'detected_food_name' => $foodName,
             'detection_confidence' => $confidence,
             'status' => MealLogStatus::Pending,

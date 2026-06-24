@@ -24,9 +24,10 @@ class MealLogApiController extends Controller
         $log = $this->mealLogService->storeFromDetection(
             user: $request->user(),
             mealType: $request->input('meal_type'),
-            foodName: $request->input('food_name'),
-            confidence: (float) $request->input('confidence'),
+            foodName: $request->input('detected_food_name'),
+            confidence: (float) $request->input('detection_confidence'),
             date: $request->input('date', today()->toDateString()),
+            photo: $request->file('photo'),
         );
 
         return $this->created([

@@ -13,6 +13,7 @@ let detectInterval = null;
 let stableCount = 0;
 let lastStableFood = null;
 let currentDetection = { food_name: null, confidence: 0 };
+let lastCapturedBlob = null;
 let activeMealType = 'pagi';
 
 const elements = {};
@@ -66,6 +67,7 @@ function resetDetectionState() {
     lastStableFood = null;
     isSubmitting = false;
     currentDetection = { food_name: null, confidence: 0 };
+    lastCapturedBlob = null;
     updateDetectionUI(null, 0);
     if (elements.confirmBtn) {
         elements.confirmBtn.disabled = true;
@@ -136,6 +138,8 @@ async function captureAndDetect() {
             return;
         }
 
+        lastCapturedBlob = blob;
+
         const form = new FormData();
         form.append('frame', blob, 'frame.jpg');
 
@@ -176,14 +180,14 @@ function trackStability(detection) {
         lastStableFood = null;
     }
 
-    if (stableCount >= CONFIG.stableFramesRequired && elements.confirmBtn) {
-        elements.confirmBtn.disabled = false;
-        setStatus(`Terdeteksi: ${detection.food_name}. Klik Simpan atau tunggu auto-submit.`);
-    }
+    // if (stableCount >= CONFIG.stableFramesRequired && elements.confirmBtn) {
+    //     elements.confirmBtn.disabled = false;
+    //     setStatus(`Terdeteksi: ${detection.food_name}. Klik Simpan atau tunggu auto-submit.`);
+    // }
 
-    if (stableCount >= CONFIG.stableFramesRequired + 2) {
-        submitDetection();
-    }
+    // if (stableCount >= CONFIG.stableFramesRequired + 2) {
+    //     submitDetection();
+    // }
 }
 
 function updateDetectionUI(foodName, confidence) {
@@ -235,20 +239,23 @@ async function submitDetection() {
     const mealType = elements.mealTypeSelect?.value || activeMealType;
 
     try {
+        const formData = new FormData();
+        formData.append('meal_type', mealType);
+        formData.append('detected_food_name', currentDetection.food_name);
+        formData.append('detection_confidence', currentDetection.confidence);
+        formData.append('date', new Date().toISOString().slice(0, 10));
+        if (lastCapturedBlob) {
+            formData.append('photo', lastCapturedBlob, 'capture.jpg');
+        }
+
         const response = await fetch('/meal-logs', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
                 Accept: 'application/json',
                 'X-CSRF-TOKEN': CONFIG.csrfToken,
                 'X-Requested-With': 'XMLHttpRequest',
             },
-            body: JSON.stringify({
-                meal_type: mealType,
-                food_name: currentDetection.food_name,
-                confidence: currentDetection.confidence,
-                date: new Date().toISOString().slice(0, 10),
-            }),
+            body: formData,
         });
 
         const data = await response.json();

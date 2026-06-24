@@ -18,8 +18,12 @@ class WebhookService
             return;
         }
 
-        Http::withHeader('X-Webhook-Secret', $secret)
-            ->timeout(10)
-            ->post($url, $payload);
+        try {
+            Http::withHeader('X-Webhook-Secret', $secret)
+                ->timeout(10)
+                ->post($url, $payload);
+        } catch (\Exception $e) {
+            Log::error('N8N webhook dispatch failed: ' . $e->getMessage(), ['url' => $url]);
+        }
     }
 }
