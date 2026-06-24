@@ -232,13 +232,17 @@
           "name": "Submit Meal Detection",
           "request": {
             "method": "POST",
-            "header": [
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
-            ],
+            "header": [{ "key": "Accept", "value": "application/json" }],
             "body": {
-              "mode": "raw",
-              "raw": "{\n    \"meal_type\": \"pagi\",\n    \"food_name\": \"Rendang\",\n    \"confidence\": 0.87,\n    \"date\": \"2026-06-24\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                { "key": "user_id", "value": "1", "description": "Required if no Bearer token", "type": "text" },
+                { "key": "meal_type", "value": "pagi", "description": "pagi | siang | malam", "type": "text" },
+                { "key": "detected_food_name", "value": "Rendang", "type": "text" },
+                { "key": "detection_confidence", "value": "0.87", "description": "0.0 - 1.0", "type": "text" },
+                { "key": "date", "value": "2026-06-24", "description": "optional, default today", "type": "text" },
+                { "key": "photo", "description": "Captured frame image (optional)", "type": "file", "src": [], "disabled": true }
+              ]
             },
             "url": { "raw": "{{base_url}}/meal-logs", "host": ["{{base_url}}"], "path": ["meal-logs"] }
           },
@@ -248,7 +252,7 @@
               "status": "Created",
               "code": 201,
               "header": [{ "key": "Content-Type", "value": "application/json" }],
-              "body": "{\n    \"code\": 201,\n    \"message\": \"Makanan terdeteksi. Menunggu analisis nutrisi...\",\n    \"data\": {\n        \"id\": 1,\n        \"meal_type\": \"pagi\",\n        \"date\": \"2026-06-24\",\n        \"detected_food_name\": \"Rendang\",\n        \"detection_confidence\": 0.87,\n        \"status\": \"pending\",\n        \"photo_path\": null\n    }\n}"
+              "body": "{\n    \"code\": 201,\n    \"message\": \"Makanan terdeteksi. Menunggu analisis nutrisi...\",\n    \"data\": {\n        \"id\": 1,\n        \"meal_type\": \"pagi\",\n        \"date\": \"2026-06-24\",\n        \"detected_food_name\": \"Rendang\",\n        \"detection_confidence\": 0.87,\n        \"status\": \"pending\",\n        \"photo_path\": \"meal-photos/capture.jpg\"\n    }\n}"
             }
           ]
         },
@@ -476,6 +480,97 @@
       ]
     },
     {
+      "name": "Meal AI Results",
+      "item": [
+        {
+          "name": "Get AI Result",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": {
+              "raw": "{{base_url}}/meal-logs/1/ai-result",
+              "host": ["{{base_url}}"],
+              "path": ["meal-logs", "1", "ai-result"]
+            }
+          },
+          "response": [
+            {
+              "name": "Get AI Result Success",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"code\": 200,\n    \"message\": \"Ok\",\n    \"data\": {\n        \"id\": 1,\n        \"meal_log_id\": 1,\n        \"food_name\": \"Ayam Goreng\",\n        \"calories\": 310.0,\n        \"protein_g\": 29.0,\n        \"carbs_g\": 12.0,\n        \"fat_g\": 23.0,\n        \"fiber_g\": 0.0,\n        \"vitamins_json\": { \"vitamin_a\": 0, \"vitamin_c\": 0 },\n        \"calorie_status\": \"cukup\",\n        \"summary\": \"Ayam Goreng adalah sumber protein hewani yang baik.\"\n    }\n}"
+            },
+            {
+              "name": "Not Found",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"code\": 404,\n    \"message\": \"AI result not found.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Store AI Result (Manual)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"food_name\": \"Ayam Goreng\",\n    \"calories\": 310,\n    \"protein\": 29,\n    \"carbs\": 12,\n    \"fat\": 23,\n    \"fiber\": 0,\n    \"vitamins\": {\n        \"vitamin_a\": 0,\n        \"vitamin_c\": 0\n    },\n    \"summary\": \"Ayam Goreng adalah sumber protein hewani yang baik.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/meal-logs/1/ai-result",
+              "host": ["{{base_url}}"],
+              "path": ["meal-logs", "1", "ai-result"]
+            }
+          },
+          "response": [
+            {
+              "name": "Store Success",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"code\": 201,\n    \"message\": \"AI result recorded.\",\n    \"data\": {\n        \"id\": 1,\n        \"meal_log_id\": 1,\n        \"food_name\": \"Ayam Goreng\",\n        \"calories\": 310.0,\n        \"protein_g\": 29.0,\n        \"carbs_g\": 12.0,\n        \"fat_g\": 23.0,\n        \"fiber_g\": 0.0,\n        \"vitamins_json\": { \"vitamin_a\": 0, \"vitamin_c\": 0 },\n        \"calorie_status\": \"cukup\",\n        \"summary\": \"Ayam Goreng adalah sumber protein hewani yang baik.\"\n    }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update AI Result",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Accept", "value": "application/json" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"calories\": 320,\n    \"summary\": \"Updated summary setelah koreksi manual.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/meal-logs/1/ai-result",
+              "host": ["{{base_url}}"],
+              "path": ["meal-logs", "1", "ai-result"]
+            }
+          },
+          "response": [
+            {
+              "name": "Update Success",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n    \"code\": 200,\n    \"message\": \"AI result updated.\",\n    \"data\": {\n        \"id\": 1,\n        \"meal_log_id\": 1,\n        \"food_name\": \"Ayam Goreng\",\n        \"calories\": 320.0,\n        \"protein_g\": 29.0,\n        \"carbs_g\": 12.0,\n        \"fat_g\": 23.0,\n        \"fiber_g\": 0.0,\n        \"vitamins_json\": { \"vitamin_a\": 0, \"vitamin_c\": 0 },\n        \"calorie_status\": \"cukup\",\n        \"summary\": \"Updated summary setelah koreksi manual.\"\n    }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Webhook (n8n)",
       "item": [
         {
@@ -494,7 +589,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"meal_log_id\": 1,\n    \"food_name\": \"Nasi Goreng\",\n    \"calories\": 520.5,\n    \"protein\": 12.3,\n    \"carbs\": 78.1,\n    \"fat\": 18.5,\n    \"fiber\": 2.1,\n    \"vitamins\": {\n        \"vitamin_a\": 120,\n        \"vitamin_c\": 15\n    },\n    \"summary\": \"Nasi goreng dengan kandungan karbohidrat tinggi. Konsumsi wajar untuk sarapan.\"\n}",
+              "raw": "{\n    \"meal_log_id\": 1,\n    \"output\": \"{\\\"food_name\\\": \\\"Nasi Goreng\\\", \\\"calories\\\": 520.5, \\\"protein\\\": 12.3, \\\"carbs\\\": 78.1, \\\"fat\\\": 18.5, \\\"fiber\\\": 2.1, \\\"vitamins\\\": {\\\"vitamin_a\\\": 120, \\\"vitamin_c\\\": 15}, \\\"summary\\\": \\\"Nasi goreng dengan kandungan karbohidrat tinggi.\\\"}\"\n}",
               "options": { "raw": { "language": "json" } }
             },
             "url": {

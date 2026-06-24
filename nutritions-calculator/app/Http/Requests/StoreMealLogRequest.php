@@ -17,11 +17,12 @@ class StoreMealLogRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'meal_type' => ['required', new Enum(MealType::class)],
-            'detected_food_name' => ['required', 'string', Rule::in(config('yolo.food_classes'))],
-            'detection_confidence' => ['required', 'numeric', 'min:0', 'max:1'],
-            'date' => ['nullable', 'date'],
-            'photo' => ['nullable', 'file', 'image', 'max:5120'],
+            'user_id'             => ['nullable', 'integer', 'exists:users,id'],
+            'meal_type'           => ['required', new Enum(MealType::class)],
+            'detected_food_name'  => ['required', 'string', Rule::in(config('yolo.food_classes'))],
+            'detection_confidence'=> ['required', 'numeric', 'min:0', 'max:1'],
+            'date'                => ['nullable', 'date'],
+            'photo'               => ['nullable', 'file', 'image', 'max:5120'],
         ];
     }
 }

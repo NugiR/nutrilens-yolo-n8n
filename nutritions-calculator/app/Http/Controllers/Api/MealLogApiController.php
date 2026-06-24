@@ -7,6 +7,7 @@ use App\Http\Requests\StoreMealLogRequest;
 use App\Repositories\MealLogRepository;
 use App\Services\MealLogService;
 use App\Traits\ApiResponsable;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -21,8 +22,15 @@ class MealLogApiController extends Controller
 
     public function store(StoreMealLogRequest $request): JsonResponse
     {
+        $user = $request->user()
+            ?? ($request->filled('user_id') ? User::findOrFail($request->integer('user_id')) : null);
+
+        if (! $user) {
+            return $this->error('user_id diperlukan jika tidak menggunakan token.', 422);
+        }
+
         $log = $this->mealLogService->storeFromDetection(
-            user: $request->user(),
+            user: $user,
             mealType: $request->input('meal_type'),
             foodName: $request->input('detected_food_name'),
             confidence: (float) $request->input('detection_confidence'),
