@@ -1,0 +1,14 @@
+path: C:/Users/MUHAMMADNUGIRAMADHAN/Yolo/Indonesia-Food-1
+train: train/images
+val: valid/images
+test: test/images
+
+nc: 21
+names: ['Ayam Bakar', 'Ayam Goreng', 'Bakso', 'Capcay', 'Donat', 'Ikan Bakar', 'Ikan Goreng', 'Kentang Goreng', 'Kentang Rebus', 'Nasi Putih', 'Puding', 'Rendang', 'Roti Tawar', 'Sate', 'Sayur Sop', 'Tahu Goreng', 'Telur Ceplok', 'Telur Dadar', 'Telur Rebus', 'Tempe Goreng', 'Tumis kangkung']
+
+roboflow:
+  workspace: yolo-obopn
+  project: indonesia-food-tjvly
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yolo-obopn/indonesia-food-tjvly/dataset/1
